@@ -1,0 +1,2 @@
+# PatternRecognitionCourse
+PatternRecognitionCourse AUTh Winter 2021
