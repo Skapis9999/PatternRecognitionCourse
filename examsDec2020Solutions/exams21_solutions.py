@@ -32,6 +32,7 @@ GINI_Outlook = freqSum.loc["Yes"] * GINI_Yes + freqSum["No"] * GINI_No
 print(GINI_Outlook)
 #Question 11
 #0.5886122835974265
+##########################################
 
 encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
 data2 = alldata.loc[(alldata.promotion == 'No')] # Access all columns of the rows that satisfy a condition
@@ -47,11 +48,12 @@ print(clf.predict(transformed_new_data))
 print(clf.predict_proba(transformed_new_data), clf.classes_)
 #Question 12
 #0.46484698
+##########################################
 
 kappa = range(10, 41)
 
 X = data2.loc[:, ['projects', 'hours']]
-y = data2.salary
+y = data2.loc[:, ['salary']]
 
 counter = 0
 
@@ -66,23 +68,25 @@ for n in kappa:
 print(counter)
 #Question 13
 #17 out of 31   
-
+##########################################
 data3 = alldata.loc[(alldata.accident == 'Yes')] # Access all columns of the rows that satisfy a condition
 
+from sklearn.naive_bayes import CategoricalNB
+
 X = data3.loc[:, ['left', 'department']]
-y = data3.salary
+y = data3.loc[:, ['salary']]
 
-from sklearn.naive_bayes import GaussianNB
-import numpy as np
+encoder3 = OneHotEncoder(handle_unknown="ignore", sparse=False)
+encoder3 = encoder3.fit(X)
+X = encoder3.transform(X)
 
-encoder.fit(data3.loc[:, ['left', 'department']])
-X = encoder.transform(data3.loc[:, ['left', 'department']])
+clf3 = CategoricalNB(alpha=0)
+clf3.fit(X, y)
 
-clf = GaussianNB()
-clf.fit(X, y)
 new_data = pd.DataFrame({'left': ['No'], 'department': ['managment']})
-transformed_new_data = encoder.transform(new_data)
-print(clf.predict(transformed_new_data))
-print(clf.predict_proba(transformed_new_data), clf.classes_)
+transformed_new_data = encoder3.transform(new_data)
+print(clf3.predict(transformed_new_data))
+print(clf3.predict_proba(transformed_new_data), clf3.classes_)
 #Question 14
-#9.99999968e-01
+#0.09104316
+##########################################
