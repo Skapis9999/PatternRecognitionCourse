@@ -83,10 +83,31 @@ X = encoder3.transform(X)
 clf3 = CategoricalNB(alpha=0)
 clf3.fit(X, y)
 
-new_data = pd.DataFrame({'left': ['No'], 'department': ['managment']})
+new_data = pd.DataFrame({'left': ['No'], 'department': ['management']})
 transformed_new_data = encoder3.transform(new_data)
 print(clf3.predict(transformed_new_data))
 print(clf3.predict_proba(transformed_new_data), clf3.classes_)
 #Question 14
-#0.09104316
+#0.04939939
+##########################################
+
+data = alldata.loc[(alldata.promotion == 'No')] # Access all columns of the rows that satisfy a condition
+
+X = data.loc[:, ['projects', 'hours']]
+y = data.loc[:, ['salary']]
+
+from sklearn import svm
+from sklearn.metrics import f1_score
+
+clf = svm.SVC(kernel="rbf", gamma=100)
+clf = clf.fit(X, y)
+pred = clf.predict(X)
+f = f1_score(y, pred, pos_label=1, average='micro')
+f2 = f1_score(y, pred, pos_label=1, average='weighted')
+
+print(f)
+print(f2)
+# Question 15
+# 0.4933723196881092 for “micro”-averaging 
+# 0.3259953899309762 for "weighted"-averaging 
 ##########################################
