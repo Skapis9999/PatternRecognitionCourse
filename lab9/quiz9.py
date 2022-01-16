@@ -31,27 +31,55 @@ plt.ylabel("X2")
 plt.title("KMeans(n_clusters=3)")
 plt.show()
 
-# faction mix pdf
-from scipy.stats import norm
-def mix_pdf(x, loc, scale, weights):
-    d = np.zeros_like(x)
-    for mu, sigma, pi in zip(loc, scale, weights):
-        d += pi * norm.pdf(x, loc = mu, scale = sigma)
-    return d
+from sklearn.metrics import silhouette_score
+print(silhouette_score(x, kmeans.labels_))
 
+import math
+
+separation = 0
+distance = lambda x1, x2: math.sqrt(((x1.X1 - x2.X1) ** 2) + ((x1.X2 - x2.X2) ** 2))
+m = gdata.mean()
+for i in list(set(kmeans.labels_)):
+    mi = gdata.loc[kmeans.labels_ == i, :].mean()
+    Ci = len(gdata.loc[kmeans.labels_ == i, :].index)
+    separation += Ci * (distance(m, mi) ** 2)
+print(separation)
+print(kmeans.inertia_)
 
 epsilon = 1e-04
 
 #Gaussian Mixture with 3 clusters
 from sklearn.mixture import GaussianMixture
 import seaborn as sns
-data = np.array(x.values.tolist()).reshape(-1,1)
-gm = GaussianMixture(n_components=3).fit(data)
+gm = GaussianMixture(n_components=3, tol=epsilon).fit(x)
 centers = gm.means_
+clusters = gm.predict(x)
+
+gdata["cluster"] = clusters
+gdata = gdata.sort_values("cluster").drop("cluster", axis=1)
+from scipy.spatial import distance_matrix
+dist = distance_matrix(gdata, gdata)
+plt.imshow(dist, cmap='hot')
+plt.colorbar()
+plt.show()
 
 # plt.contour(X, Y, Z)
-plt.scatter(gdata[(y == 1)].X1, gdata[(y == 1)].X2, c="red", marker="+")
-plt.scatter(gdata[(y == 2)].X1, gdata[(y == 2)].X2, c="blue", marker="o")
-plt.scatter(gdata[(y == 3)].X1, gdata[(y == 3)].X2, c="black", marker="x")
-plt.legend(loc = 'upper right')
+x1 = np.linspace(np.min(x.loc[:, "X1"]), np.max(x.loc[:, "X1"]))
+y1 = np.linspace(np.min(x.loc[:, "X2"]), np.max(x.loc[:, "X2"]))
+X, Y = np.meshgrid(x1, y1)
+XX = np.array([X.ravel(), Y.ravel()]).T
+Z = -gm.score_samples(XX)
+Z = Z.reshape(X.shape)
+plt.scatter(gdata.X1, gdata.X2, c=clusters)
+plt.scatter(centers[:, 0], centers[:, 1], marker="+", s=169, c=range(3))
+plt.contour(X, Y, Z)
 plt.show()
+
+print(silhouette_score(x, clusters))
+separation = 0
+m = gdata.mean()
+for i in list(set(clusters)):
+    mi = gdata.loc[clusters == i, :].mean()
+    Ci = len(gdata.loc[clusters == i, :].index)
+    separation += Ci * (distance(m, mi) ** 2)
+print(separation)
