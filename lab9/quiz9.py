@@ -31,20 +31,8 @@ plt.ylabel("X2")
 plt.title("KMeans(n_clusters=3)")
 plt.show()
 
-from sklearn.metrics import silhouette_score
-print(silhouette_score(x, kmeans.labels_))
-
-import math
-
-separation = 0
-distance = lambda x1, x2: math.sqrt(((x1.X1 - x2.X1) ** 2) + ((x1.X2 - x2.X2) ** 2))
-m = gdata.mean()
-for i in list(set(kmeans.labels_)):
-    mi = gdata.loc[kmeans.labels_ == i, :].mean()
-    Ci = len(gdata.loc[kmeans.labels_ == i, :].index)
-    separation += Ci * (distance(m, mi) ** 2)
-print(separation)
-print(kmeans.inertia_)
+from sklearn.metrics import accuracy_score
+print(accuracy_score(kmeans.labels_, y))
 
 epsilon = 1e-04
 
@@ -74,12 +62,7 @@ plt.scatter(gdata.X1, gdata.X2, c=clusters)
 plt.scatter(centers[:, 0], centers[:, 1], marker="+", s=169, c=range(3))
 plt.contour(X, Y, Z)
 plt.show()
-
-print(silhouette_score(x, clusters))
-separation = 0
-m = gdata.mean()
-for i in list(set(clusters)):
-    mi = gdata.loc[clusters == i, :].mean()
-    Ci = len(gdata.loc[clusters == i, :].index)
-    separation += Ci * (distance(m, mi) ** 2)
-print(separation)
+p = accuracy_score(clusters, y)
+if p<0.5 :
+    p = 1 - p
+print(p)
